@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Maker| Bar Graph, Line Graph, Pie Chart Generator| - Grapher</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #f4f4f9; color: #333; font-family:Serif;}
+.container { background-color: #blue; border-radius: 8px; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+button:hover { background-color: #0056b3; }
+input { border: 1px solid #ccc; border-radius: 4px; padding: 10px; width: calc(100% - 22px); }
+h1, h2 { border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+
+        .container { padding: 15px; }
+h2 { margin-top: 10px; }
+canvas { margin-bottom: 20px; }
+input { margin-bottom: 10px; }
+
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: black;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 16px;
+    z-index: 1000; /* Ensure it stays on top of other content */
+}
+
+footer p {
+    margin: 0;
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <center><h1>Graph Maker</h1></center><br>
+
+        <!-- Main heading for the graphs -->
+        <h2>Main Data Visualizations</h2>
+
+        <label for="mainTitle">Main Title:</label>
+        <input type="text" id="mainTitle" placeholder="Enter main title for the charts">
+
+        <label for="dataInput">Graph Data:</label>
+        <input type="text" id="dataInput" placeholder="Enter comma-separated values to be displayed on the charts">
+
+        <label for="labelInput">Labels:</label>
+        <input type="text" id="labelInput" placeholder="Enter comma-separated labels for the values above">
+
+        <label for="xAxisLabel">X-axis Label:</label>
+        <input type="text" id="xAxisLabel" placeholder="Enter X-axis label">
+
+        <label for="yAxisLabel">Y-axis Label:</label>
+        <input type="text" id="yAxisLabel" placeholder="Enter Y-axis label">
+
+        <button onclick="updateCharts()">Update Charts</button>
+        <div class="error" id="error"></div><br>
+
+        <h2>Bar Chart</h2>
+        <canvas id="barChart"></canvas><br><br>
+
+        <h2>Line Chart</h2>
+        <canvas id="lineChart"></canvas><br><br>
+
+        <h2>Pie Chart</h2>
+        <canvas id="pieChart" width="50" height="50"></canvas><br><br><br><br><br><br>
+
+
+    </div>
+
+    <script>
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        const ctxLine = document.getElementById('lineChart').getContext('2d');
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+
+        let barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '',
+                    data: [],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: ''
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: '',
+                            beginAtZero: true
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: ''
+                    }
+                }
+            }
+        });
+
+        let lineChart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '',
+                    data: [],
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: ''
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: '',
+                            beginAtZero: true
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: ''
+                    }
+                }
+            }
+        });
+
+        let pieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '',
+                    data: [],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: ''
+                    }
+                }
+            }
+        });
+
+        function updateCharts() {
+            const mainTitle = document.getElementById('mainTitle').value;
+            const dataInput = document.getElementById('dataInput').value;
+            const labelInput = document.getElementById('labelInput').value;
+            const xAxisLabel = document.getElementById('xAxisLabel').value;
+            const yAxisLabel = document.getElementById('yAxisLabel').value;
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = '';
+
+            // Validate input
+            if (!dataInput || !labelInput) {
+                errorDiv.textContent = 'Please enter both data and labels.';
+                return;
+            }
+
+            const data = dataInput.split(',').map(value => {
+                const num = Number(value.trim());
+                if (isNaN(num)) {
+                    errorDiv.textContent = 'Please enter only numeric values.';
+                    return NaN;
+                }
+                return num;
+            });
+
+            if (data.includes(NaN)) return;
+
+            const labels = labelInput.split(',').map(label => label.trim());
+
+            if (labels.length !== data.length) {
+                errorDiv.textContent = 'The number of labels must match the number of data points.';
+                return;
+            }
+
+            // Update main title
+            document.querySelector('h2').textContent = mainTitle;
+
+            // Update Bar Chart
+            barChart.data.labels = labels;
+            barChart.data.datasets[0].data = data;
+            barChart.options.plugins.title.text = `${mainTitle} - Bar Chart`;
+            barChart.options.scales.x.title.text = xAxisLabel;
+            barChart.options.scales.y.title.text = yAxisLabel;
+            barChart.update();
+
+            // Update Line Chart
+            lineChart.data.labels = labels;
+            lineChart.data.datasets[0].data = data;
+            lineChart.options.plugins.title.text = `${mainTitle} - Line Chart`;
+            lineChart.options.scales.x.title.text = xAxisLabel;
+            lineChart.options.scales.y.title.text = yAxisLabel;
+            lineChart.update();
+
+            // Update Pie Chart
+            pieChart.data.labels = labels;
+            pieChart.data.datasets[0].data = data;
+            pieChart.options.plugins.title.text = `${mainTitle} - Pie Chart`;
+            pieChart.update();
+
+            // Smooth scroll to the bar chart
+            document.getElementById('barChart').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+<footer>
+    <p>Grapher</p>
+</footer>
+
+</html>
